@@ -1,12 +1,16 @@
+#POINT:Python の外部/標準ライブラリを読み込む仕組み。
+#POINT:Python では { } ではなく インデント でブロックを表現する。
 import pymssql
 import datetime
 
+#PONT:変数への代入/Pythonでは型宣言が不要
 SERVER = 'localhost'       # または 'localhost\\SQLEXPRESS'
 USER = 'sa'
 PWD = 'Pa$$w0rd'
 BDD = 'PINGOUINS'
 cnx = pymssql.connect(SERVER, USER, PWD, BDD)
 
+#POINT:cursor=>イテレーターとしてクエリの検索結果を持っている
 #Combien il y a-t-il de pingouins au total ?
 cursor = cnx.cursor()
 cursor.execute('SELECT COUNT(id_pingouin) AS total_pingouins FROM Pingouins;')
@@ -16,7 +20,8 @@ for row in cursor:
     print(row[0])
 
 #Pour chaque espèce, combien il y a-t-il d’individus ?
-cursor = cnx.cursor(as_dict=True)  # 列名でアクセスできるように
+#POINT: Python の辞書（dict）を使って列名でアクセスできる。/列名でアクセスできるように
+cursor = cnx.cursor(as_dict=True)
 cursor.execute('SELECT espece, COUNT(*) AS nb_individus FROM Pingouins GROUP BY espece')
 #fetchall() で結果をまとめて取得
 for row in cursor.fetchall():
@@ -47,6 +52,7 @@ for row in cursor:
 cursor = cnx.cursor(as_dict=True)
 cursor.execute('SELECT AVG(longueur_bec) AS longueur_moyenne FROM Pingouins WHERE longueur_bec IS NOT NULL')
 result = cursor.fetchone()
+#POINT:Python の print は , で複数の値を並べて出力できる。
 print("Longueur moyenne des becs :", round(result['longueur_moyenne'], 2), "mm")
 
 #Quelle est la plus grande profondeur de bec ?
@@ -56,6 +62,7 @@ result = cursor.fetchone()
 print("Plus grande profondeur de bec :", result['profondeur_max'], "mm")
 
 #Combien il y a-t-il de pingouins pour chaque sexe ?
+#fetchall
 cursor = cnx.cursor(as_dict=True)
 cursor.execute('SELECT sex, COUNT(*) AS nb_individus FROM Pingouins GROUP BY sex')
 
@@ -75,8 +82,7 @@ print("Âge du plus jeune pingouin :", age_plus_jeune, "ans")
 
 
 #Quel est l’âge du pingouin le plus âgé ?
-
-
+#fetchone
 current_year = datetime.date.today().year
 
 cursor = cnx.cursor(as_dict=True)
